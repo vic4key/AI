@@ -7,6 +7,8 @@
 import sys 
 import vp as rg
 
+LINE_FIXED = 50
+
 Target = [
     [-1, -1, -1, -1, -1, -1, -1, -1, -1],
     [-1, +1, -1, -1, -1, -1, -1, +1, -1],
@@ -19,25 +21,31 @@ Target = [
     [-1, -1, -1, -1, -1, -1, -1, -1, -1]
 ]
 
-Feature = [
-    [+1, -1, -1],
-    [-1, +1, -1],
-    [-1, -1, +1]
+Features = [
+    [
+        [+1, -1, -1],
+        [-1, +1, -1],
+        [-1, -1, +1],
+    ],
+    [
+        [+1, -1, +1],
+        [-1, +1, -1],
+        [+1, -1, +1]
+    ],
+    [
+        [-1, -1, +1],
+        [-1, +1, -1],
+        [+1, -1, -1]
+    ]
 ]
 
-Feature = [
-    [-1, -1, +1],
-    [-1, +1, -1],
-    [+1, -1, -1]
-]
+def Title(text, allow = True):
+    if not allow: return
+    print text.center(LINE_FIXED, "-")
+    return
 
-Feature = [
-    [+1, -1, +1],
-    [-1, +1, -1],
-    [+1, -1, +1]
-]
-
-def Print(target):
+def Print(target, allow = True):
+    if not allow: return
     if target == None: return None
     m, n = len(target), len(target[0])
     if m == 0 or n == 0: return None
@@ -139,23 +147,34 @@ def Pooling(target, M, N):
 
     return l
 
+def Layer(target, feature, pool = [2, 2], debug = True):
+    result = Target
+
+    Title("Convolution", debug)
+    result = Convolution(result, feature)
+    Print(result, debug)
+
+    Title("ReLU", debug)
+    result = ReLU(result)
+    Print(result, debug)
+
+    Title("Pooling", debug)
+    result = Pooling(result, pool[0], pool[1])
+    Print(result, debug)
+
+    Title("Pooling", debug)
+    result = Pooling(result, pool[0], pool[1])
+    Print(result, debug)
+
+    return result
+
 def main():
     try:
         print "Howdy, Vic P."
-
-        result = Target
-
-        print "Convolution".center(50, "-")
-        result = Convolution(result, Feature)
-        Print(result)
-
-        print "ReLU".center(50, "-")
-        result = ReLU(result)
-        Print(result)
-
-        print "Pooling".center(50, "-")
-        result = Pooling(result, 2, 2)
-        Print(result)
+        for i, Feature in enumerate(Features):
+            print ("Feature[%d]" % i).center(LINE_FIXED, "*")
+            result = Layer(Target, Feature, debug=False)
+            Print(result)
     except (Exception, KeyboardInterrupt): rg.LogException(sys.exc_info())
 
 if __name__ == "__main__":
